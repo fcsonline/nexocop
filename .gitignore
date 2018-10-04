@@ -1,0 +1,5 @@
+*.gem
+
+nexocop.json
+rubocop.json
+rubocop.html

@@ -1,0 +1,110 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'rainbow/refinement'
+using Rainbow
+
+require 'nexocop'
+
+module Nexocop
+  #
+  # Mutates the argument by adding the file path to each offense
+  #
+  def self.add_path_to_offenses!(part_json)
+    part_json['files'].each do |file|
+      file['offenses'].map! do |offense|
+        offense['path'] = file['path']
+        offense
+      end
+    end
+  end
+
+  #
+  # Mutates the argument by removing files that
+  # weren't changed by this branch
+  #
+  def self.filter_files_not_in_diff!(part_json, changed_lines)
+    part_json['files'].select! do |file|
+      changed_lines.key?(file['path'])
+    end
+  end
+
+  #
+  # Mutates the argument by removing files that
+  # have no offenses
+  #
+  def self.filter_files_without_offenses!(part_json)
+    part_json['files'].select! do |file|
+      file['offenses'].count.positive?
+    end
+  end
+
+  #
+  # Mutates the argument by removing offenses that
+  # weren't added by this branch
+  #
+  def self.filter_offenses_not_in_diff!(part_json, changed_lines)
+    part_json['files'].each do |file|
+      file['offenses'].select! do |offense|
+        Rubocop.offense_in_diff?(offense, changed_lines)
+      end
+    end
+  end
+
+  #
+  # Mutates the argument by adjusting the summary numbers
+  # to be accurate based on our trimming
+  #
+  def self.update_summary!(part_json)
+    part_json['summary']['offense_count'] = Rubocop.count_offenses(part_json)
+    part_json['summary']['target_file_count'] = Rubocop.count_files(part_json)
+    part_json
+  end
+
+  #
+  # Only include offenses pertaining to code that has changed
+  #
+  def self.trim_results(full_json)
+    changed_lines = Git.changed_lines
+    part_json = full_json.dup
+    add_path_to_offenses!(part_json)
+    filter_files_not_in_diff!(part_json, changed_lines)
+    filter_offenses_not_in_diff!(part_json, changed_lines)
+    filter_files_without_offenses!(part_json)
+    update_summary!(part_json)
+    part_json
+  end
+
+  def self.run(json_file:, rubocop_args:)
+    unless Rubocop.available?
+      puts 'Could not find rubocop!  Please make sure it is installed'.red
+      exit 1
+    end
+
+    res = Rubocop.run(rubocop_args)
+
+    if res.success?
+      puts 'Rubocop found no violations!'.green
+      exit 0
+    elsif !File.exist?(json_file)
+      puts "Rubocop found violations but did not save the file at #{json_file} as expected!".red
+      exit 2
+    else
+      part_json = trim_results(JSON.parse(File.read(json_file)))
+      File.write(json_file, JSON.pretty_generate(part_json))
+      if Rubocop.has_offenses?(part_json)
+        count = Rubocop.count_offenses(part_json)
+        violations_that_need = count == 1 ? 'violation that needs' : 'violations that need'
+        puts "Found #{count} #{violations_that_need} to be fixed:\n".yellow
+        puts JSON.pretty_generate(part_json)
+        exit 3
+      else
+        puts 'No offenses found in the new code!'.green
+        exit 0
+      end
+    end
+  end
+end
+
+args = Nexocop::Options.parse_args(ARGV)
+Nexocop.run(json_file: args.json_outfile, rubocop_args: args.rubocop_args)
