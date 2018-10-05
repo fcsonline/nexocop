@@ -13,9 +13,9 @@ Gem::Specification.new do |s|
     'project that will only check linting against lines that have changed in ' \
     'git.  Rubocop normally is not git aware.  This gem makes it git aware.'
   s.authors     = ['Ben Porter']
-  s.email       = 'BenjaminPorter86@gmail.com'
+  s.email       = 'bporter@simplenexus.com'
   s.files       = ['lib/nexocop.rb'] + Dir['lib/nexocop/**/*']
-  s.homepage    = 'https://github.com/FreedomBen/nexocop'
+  s.homepage    = 'https://github.com/SimpleNexus/nexocop'
   s.license     = 'MIT'
 
   s.required_ruby_version = '>= 2.3.0'
