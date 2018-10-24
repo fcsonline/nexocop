@@ -40,7 +40,7 @@ module Nexocop
     end
 
     def self.count_line?(line)
-      line =~ /@@.*@@/
+      line =~ /^@@(\s|\d|\W)+@@/
     end
 
     #

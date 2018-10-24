@@ -17,6 +17,7 @@ RSpec.describe Nexocop::Git do
     it 'identifies line number lines' do
       expect(Nexocop::Git.count_line?('@@ -81,0 +78,33 @@')).to be_truthy
       expect(Nexocop::Git.count_line?('-81,0 +78,33@')).to be_falsey
+      expect(Nexocop::Git.count_line?('@@restricted_attributes + @@something_else')).to be_falsey
     end
 
     it 'extracts the line numbers' do
@@ -70,6 +71,17 @@ RSpec.describe Nexocop::Git do
         +      "bundle exec rubocop"
         +    elsif Sh.run_command('which rubocop >/dev/null 2>&1').success?
         +      "rubocop"
+        diff --git a/app/policies/remote_loan_policy.rb b/app/policies/remote_loan_policy.rb
+        index 50459d4618..838979c809 100644
+        --- a/app/policies/amazing_policies_policy.rb
+        +++ b/app/policies/amazing_policies_policy.rb
+        @@ -1,0 +2,32 @@ class AmazingPoliciesPolicy < ApplicationPolicy
+        +  attr_accessor :amazing_detail_settings
+        +
+        +  def self.restricted_attributes
+        +    @@restricted_attributes + @@something_else
+        +  end
+        +
       EOF
     end
 
@@ -77,7 +89,8 @@ RSpec.describe Nexocop::Git do
       expect(Nexocop::Git.changed_lines(git_diff)).to eq(
         'Dockerfile' => [[12, 12], [15, 15]],
         'docker-compose.yml' => [[24, 24], [52, 52]],
-        'bin/nexocop' => [[1, 31]]
+        'bin/nexocop' => [[1, 31]],
+        'app/policies/amazing_policies_policy.rb' => [[2, 34]]
       )
     end
 
