@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'rainbow', '~> 3.0'
   s.add_runtime_dependency 'rubocop', '~> 0.59'
-  s.add_runtime_dependency 'thor', '~> 0.20'
 
   s.add_development_dependency 'byebug', '~> 10.0'
   s.add_development_dependency 'rake', '~> 12.3'

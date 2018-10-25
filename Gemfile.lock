@@ -4,7 +4,6 @@ PATH
     nexocop (0.0.2)
       rainbow (~> 3.0)
       rubocop (~> 0.59)
-      thor (~> 0.20)
 
 GEM
   remote: https://rubygems.org/
@@ -41,7 +40,6 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-progressbar (1.10.0)
-    thor (0.20.0)
     unicode-display_width (1.4.0)
 
 PLATFORMS
