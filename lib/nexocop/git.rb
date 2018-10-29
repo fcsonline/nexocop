@@ -16,7 +16,7 @@ module Nexocop
     # }
     #
     def self.changed_lines(git_diff = nil)
-      git_diff ||= Sh.run_command('git diff --unified=0 origin/master').stdout
+      git_diff ||= Sh.run_command('git diff --unified=0 --diff-filter=AM origin/master').stdout
       lines = {}
       cur_file = ''
       git_diff.split("\n").each do |line|
