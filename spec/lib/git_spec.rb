@@ -27,6 +27,24 @@ RSpec.describe Nexocop::Git do
     end
   end
 
+  context 'changed files' do
+    let(:changed_files) { %w[file1 file2 file3] }
+
+    before(:each) do
+      allow(Nexocop::Sh).to receive(:run_command) do
+        OpenStruct.new(
+          success?: true,
+          exitstatus: 0,
+          stdout: changed_files.join("\n")
+        )
+      end
+    end
+
+    it 'lists files in git that have changed' do
+      expect(Nexocop::Git.changed_files).to eq(changed_files)
+    end
+  end
+
   context 'changed lines' do
     let(:git_diff) do
       <<~EOF

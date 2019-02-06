@@ -26,6 +26,10 @@ module Nexocop
         rubocop_args.push(%w[--format json -o].push(default_json_file)).flatten!
       end
 
+      # Filter files that haven't changed at all so rubocop doesn't waste time
+      # checking them when we are going to throw them away anyway
+      rubocop_args.concat(Git::changed_files)
+
       OpenStruct.new(
         json_outfile: json_outfile,
         rubocop_args: rubocop_args

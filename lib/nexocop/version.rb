@@ -2,10 +2,10 @@
 
 module Nexocop
   def self.version
-    '0.0.3'
+    '0.0.4'
   end
 
   def self.date
-    '2018-10-29'
+    '2019-02-06'
   end
 end
