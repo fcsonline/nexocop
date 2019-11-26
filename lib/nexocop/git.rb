@@ -35,7 +35,7 @@ module Nexocop
     # Get an array of filenames that have changed.  Path is relative to the git root
     #
     def self.changed_files
-      Sh.run_command('git diff --diff-filter=AM origin/master --name-only')
+      Sh.run_command('git diff --name-only $(git merge-base HEAD origin/master)..')
         .stdout
         .split("\n")
     end
